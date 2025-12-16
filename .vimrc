@@ -27,7 +27,7 @@ set wildmenu
 set wildmode=longest:full,full
 set scrolloff=8
 set signcolumn=yes
-set colorcolumn=80
+" set colorcolumn=80
 
 set lazyredraw
 set ttyfast
@@ -42,7 +42,7 @@ set noswapfile
 set undofile
 set undodir=~/.vim/undodir
 
-set clipboard=unnamedplus
+set clipboard=unnamed
 
 set termguicolors
 set background=dark
@@ -73,6 +73,7 @@ Plug 'mhinz/vim-grepper'
 Plug 'morhetz/gruvbox'              " Color scheme
 Plug 'itchyny/lightline.vim'        " Minimal status line
 Plug 'preservim/nerdtree'           " File tree (minimal use)
+Plug 'mg979/vim-visual-multi'
 
 call plug#end()
 
