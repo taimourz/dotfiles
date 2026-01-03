@@ -1,0 +1,192 @@
+return {
+	"akinsho/toggleterm.nvim", -- Toggle terminal in neovim
+	event = "VeryLazy",
+	config = function()
+		local status_ok, toggleterm = pcall(require, "toggleterm")
+		if not status_ok then
+			return
+		end
+
+		toggleterm.setup({
+			size = 20,
+			open_mapping = [[<c-\>]],
+			hide_numbers = true,
+			shade_filetypes = {},
+			shade_terminals = true,
+			shading_factor = 2,
+			start_in_insert = true,
+			insert_mappings = true,
+			persist_size = true,
+			direction = "horizontal",
+			close_on_exit = true,
+			shell = vim.o.shell,
+			float_opts = {
+				border = "curved",
+				winblend = 0,
+				highlights = {
+					border = "Normal",
+					background = "Normal"
+				}
+			}
+		})
+
+		function _G.set_terminal_keymaps()
+			local opts = {
+				noremap = true
+			}
+			vim.api.nvim_buf_set_keymap(0, "t", "<esc>", [[<C-\><C-n>]], opts)
+			vim.api.nvim_buf_set_keymap(0, "t", "jk", [[<C-\><C-n>]], opts)
+			vim.api.nvim_buf_set_keymap(0, "t", "<C-h>", [[<C-\><C-n><C-W>h]], opts)
+			vim.api.nvim_buf_set_keymap(0, "t", "<C-j>", [[<C-\><C-n><C-W>j]], opts)
+			vim.api.nvim_buf_set_keymap(0, "t", "<C-k>", [[<C-\><C-n><C-W>k]], opts)
+			vim.api.nvim_buf_set_keymap(0, "t", "<C-l>", [[<C-\><C-n><C-W>l]], opts)
+		end
+
+		vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
+
+		local Terminal = require("toggleterm.terminal").Terminal
+		local lazygit = Terminal:new({
+			cmd = "lazygit",
+			hidden = true
+		})
+
+		function _LAZYGIT_TOGGLE()
+			lazygit:toggle()
+		end
+
+		local node = Terminal:new({
+			cmd = "node",
+			hidden = true
+		})
+
+		function _NODE_TOGGLE()
+			node:toggle()
+		end
+
+		local ncdu = Terminal:new({
+			cmd = "ncdu",
+			hidden = true
+		})
+
+		function _NCDU_TOGGLE()
+			ncdu:toggle()
+		end
+
+		local htop = Terminal:new({
+			cmd = "htop",
+			hidden = true
+		})
+
+		function _HTOP_TOGGLE()
+			htop:toggle()
+		end
+
+		local python = Terminal:new({
+			cmd = "python",
+			hidden = true
+		})
+
+		function _PYTHON_TOGGLE()
+			python:toggle()
+		end
+
+		function run_file()
+			local filetype = vim.bo.filetype
+			local filename = vim.fn.expand('%:p')  -- Full path
+			
+			local commands = {
+				python = 'python3 "' .. filename .. '"',
+				c = 'gcc "' .. filename .. '" -o /tmp/a.out && /tmp/a.out',
+				cpp = 'g++ "' .. filename .. '" -o /tmp/a.out && /tmp/a.out',
+				rust = 'cargo run',
+				javascript = 'node "' .. filename .. '"',
+				typescript = 'ts-node "' .. filename .. '"',
+				sh = 'bash "' .. filename .. '"',
+				lua = 'lua "' .. filename .. '"',
+				go = 'go run "' .. filename .. '"',
+			}
+			
+			local cmd = commands[filetype]
+			if not cmd then
+				vim.notify('No run command configured for: ' .. filetype, vim.log.levels.WARN)
+				return
+			end
+			
+			local Terminal = require("toggleterm.terminal").Terminal
+			local run_term = Terminal:new({
+				cmd = cmd,
+				direction = "float",
+				close_on_exit = false,  -- Keep open to see output
+				on_open = function(term)
+					vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", {noremap = true, silent = true})
+				end,
+			})
+			run_term:toggle()
+		end
+
+		_G.RUN_FILE = run_file
+
+
+-- Debug file function
+function _G.DEBUG_FILE()
+	local filetype = vim.bo.filetype
+	local filename = vim.fn.expand('%:p')
+	
+	if filetype == "javascript" then
+		-- For Node.js, we'll open terminal and send commands
+		local Terminal = require("toggleterm.terminal").Terminal
+		local debug_term = Terminal:new({
+			cmd = "node inspect " .. vim.fn.shellescape(filename),
+			direction = "float",
+			close_on_exit = false,
+			on_open = function(term)
+				vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", {noremap = true, silent = true})
+				-- Auto-send 'cont' command after terminal opens
+				vim.defer_fn(function()
+					if term and term.job_id then
+						vim.api.nvim_chan_send(term.job_id, "cont\n")
+					end
+				end, 500)
+			end,
+		})
+		debug_term:toggle()
+		
+	elseif filetype == "python" then
+		local Terminal = require("toggleterm.terminal").Terminal
+		local debug_term = Terminal:new({
+			cmd = 'python3 -m pdb "' .. filename .. '"',
+			direction = "float",
+			close_on_exit = false,
+			on_open = function(term)
+				vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", {noremap = true, silent = true})
+				-- Auto-send 'continue' command
+				vim.defer_fn(function()
+					if term and term.job_id then
+						vim.api.nvim_chan_send(term.job_id, "c\n")
+					end
+				end, 500)
+			end,
+		})
+		debug_term:toggle()
+		
+	elseif filetype == "typescript" then
+		local Terminal = require("toggleterm.terminal").Terminal
+		local debug_term = Terminal:new({
+			cmd = 'node --inspect --require ts-node/register "' .. filename .. '"',
+			direction = "float",
+			close_on_exit = false,
+			on_open = function(term)
+				vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", {noremap = true, silent = true})
+			end,
+		})
+		debug_term:toggle()
+		
+	else
+		vim.notify('No debug command configured for: ' .. filetype, vim.log.levels.WARN)
+	end
+end	
+
+	end
+}
+
+
