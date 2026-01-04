@@ -37,3 +37,5 @@ vim.api.nvim_create_user_command("ShowMessages", function()
 	-- vim.cmd("tabnew")  -- tab is something I rarely use in neovim
 	vim.api.nvim_set_current_buf(buf)
 end, { desc = "Show :messages in a new buffer" })
+
+vim.opt.clipboard = "unnamedplus"
