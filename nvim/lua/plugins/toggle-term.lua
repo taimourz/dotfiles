@@ -70,6 +70,10 @@ return {
 			end
 		end
 
+		function _HORIZONTAL_TOGGLE()
+			vim.cmd("ToggleTerm direction=horizontal")
+		end
+
 		local node = Terminal:new({
 			cmd = "node",
 			hidden = true
@@ -135,6 +139,8 @@ return {
 				close_on_exit = false,
 				on_open = function(term)
 					vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", {noremap = true, silent = true})
+					vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-q>", [[<C-\><C-n>:close<CR>]], {noremap = true, silent = true})
+					vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-c><C-c>", [[<C-\><C-n>:close<CR>]], {noremap = true, silent = true})
 				end,
 			})
 			run_term:toggle()
@@ -148,6 +154,7 @@ return {
 			local filename = vim.fn.expand('%:p')
 			
 			if filetype == "javascript" then
+				vim.fn.system("lsof -ti:9229 | xargs kill -9 2>/dev/null")
 				local Terminal = require("toggleterm.terminal").Terminal
 				local debug_term = Terminal:new({
 					cmd = "node inspect " .. vim.fn.shellescape(filename),
@@ -155,6 +162,8 @@ return {
 					close_on_exit = false,
 					on_open = function(term)
 						vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", {noremap = true, silent = true})
+						vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-q>", [[<C-\><C-n>:close<CR>]], {noremap = true, silent = true})
+						vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-c><C-c>", [[<C-\><C-n>:close<CR>]], {noremap = true, silent = true})
 						vim.defer_fn(function()
 							if term and term.job_id then
 								vim.api.nvim_chan_send(term.job_id, "cont\n")
@@ -172,6 +181,8 @@ return {
 					close_on_exit = false,
 					on_open = function(term)
 						vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", {noremap = true, silent = true})
+						vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-q>", [[<C-\><C-n>:close<CR>]], {noremap = true, silent = true})
+						vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-c><C-c>", [[<C-\><C-n>:close<CR>]], {noremap = true, silent = true})
 						vim.defer_fn(function()
 							if term and term.job_id then
 								vim.api.nvim_chan_send(term.job_id, "c\n")
@@ -182,6 +193,7 @@ return {
 				debug_term:toggle()
 				
 			elseif filetype == "typescript" then
+				vim.fn.system("lsof -ti:9229 | xargs kill -9 2>/dev/null")
 				local Terminal = require("toggleterm.terminal").Terminal
 				local debug_term = Terminal:new({
 					cmd = 'node --inspect --require ts-node/register "' .. filename .. '"',
@@ -189,6 +201,8 @@ return {
 					close_on_exit = false,
 					on_open = function(term)
 						vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", {noremap = true, silent = true})
+						vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-q>", [[<C-\><C-n>:close<CR>]], {noremap = true, silent = true})
+						vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-c><C-c>", [[<C-\><C-n>:close<CR>]], {noremap = true, silent = true})
 					end,
 				})
 				debug_term:toggle()
@@ -200,5 +214,3 @@ return {
 
 	end
 }
-
-

@@ -140,12 +140,13 @@ vim.keymap.set("i", "<C-l>", "<C-o>$", { noremap = true, silent = true })
 
 
 -- Toggleterm special terminals
-vim.keymap.set("n", "<leader>tg", "<cmd>lua _LAZYGIT_TOGGLE()<CR>", opts)  -- Lazygit
-vim.keymap.set("n", "<leader>tn", "<cmd>lua _NODE_TOGGLE()<CR>", opts)     -- Node REPL
-vim.keymap.set("n", "<leader>tp", "<cmd>lua _PYTHON_TOGGLE()<CR>", opts)   -- Python REPL
-vim.keymap.set("n", "<leader>tf", "<cmd>ToggleTerm direction=float<CR>", opts)  -- Floating terminal
+vim.keymap.set("n", "<leader>tg", "<cmd>lua _LAZYGIT_TOGGLE()<CR>", opts)
+vim.keymap.set("n", "<leader>tn", "<cmd>lua _NODE_TOGGLE()<CR>", opts)
+vim.keymap.set("n", "<leader>tp", "<cmd>lua _PYTHON_TOGGLE()<CR>", opts)
+vim.keymap.set("n", "<leader>tf", "<cmd>ToggleTerm direction=float<CR>", opts)
+vim.keymap.set("n", "<leader>th", "<cmd>lua _HORIZONTAL_TOGGLE()<CR>", opts)  
 
 vim.keymap.set("n", "<C-r>", "<cmd>lua RUN_FILE()<CR>", opts)
 vim.keymap.set("n", "<leader>r", "<cmd>lua RUN_FILE()<CR>", opts)
-vim.keymap.set("n", "<C-d>", "<cmd>lua DEBUG_FILE()<CR>", opts)
+-- vim.keymap.set("n", "<C-d>", "<cmd>lua DEBUG_FILE()<CR>", opts)
 vim.keymap.set("n", "<leader>db", "<cmd>lua DEBUG_FILE()<CR>", opts)
