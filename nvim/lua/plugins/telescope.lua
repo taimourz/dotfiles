@@ -66,7 +66,9 @@ return {
 		vim.keymap.set('n', '<leader>sk', builtin.keymaps, {
 			desc = '[S]earch [K]eymaps'
 		})
-		vim.keymap.set('n', '<leader>sf', builtin.find_files, {
+		vim.keymap.set('n', '<leader>sf', function()
+			builtin.find_files({ follow = true })
+		end, {
 			desc = '[S]earch [F]iles'
 		})
 		vim.keymap.set('n', '<leader>ss', builtin.builtin, {
@@ -90,8 +92,9 @@ return {
 		vim.keymap.set('n', '<leader><leader>', builtin.buffers, {
 			desc = '[ ] Find existing buffers'
 		})
-
-		vim.keymap.set('n', '<C-p>', builtin.find_files, {
+		vim.keymap.set('n', '<C-p>', function()
+			builtin.find_files({ follow = true })
+		end, {
 			desc = 'Search Files'
 		})
 

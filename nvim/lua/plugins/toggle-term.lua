@@ -46,13 +46,48 @@ return {
 
 		local Terminal = require("toggleterm.terminal").Terminal
 
+		-- Try to find the git project root for the current buffer.
+		-- This makes Lazygit work nicely even when editing through workspace symlinks.
+		local function project_root()
+			-- Absolute path to current buffer, or empty string for [No Name]
+			local bufname = vim.api.nvim_buf_get_name(0)
+			if bufname == "" then
+				return vim.loop.cwd()
+			end
+
+			-- Start from the directory containing the current file
+			local dir = vim.fn.fnamemodify(bufname, ":p:h")
+			local prev = ""
+
+			-- Walk up until we find a .git directory or hit filesystem root
+			while dir ~= prev do
+				if vim.loop.fs_stat(dir .. "/.git") then
+					return dir
+				end
+				prev = dir
+				dir = vim.fn.fnamemodify(dir, ":h")
+			end
+
+			-- Fallback: behave like before (use Neovim's current working directory)
+			return vim.loop.cwd()
+		end
+
 		function _LAZYGIT_TOGGLE()
+			local root = project_root()
+
 			if vim.env.TMUX then
-				vim.fn.system("tmux display-popup -E -w 95% -h 95% lazygit")
+				-- In tmux, open a popup rooted at the detected project directory.
+				-- This keeps the original popup behavior, but makes workspaces + symlinks work.
+				local cmd = string.format(
+					"tmux display-popup -E -w 95%%%% -h 95%%%% 'cd %s && lazygit'",
+					root
+				)
+				vim.fn.system(cmd)
 			else
 				local Terminal = require("toggleterm.terminal").Terminal
 				local lazygit = Terminal:new({
 					cmd = "lazygit",
+					dir = root,
 					hidden = true,
 					direction = "float",
 					float_opts = {
